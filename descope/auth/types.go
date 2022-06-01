@@ -135,6 +135,10 @@ type magicLinkAuthenticationVerifyRequestBody struct {
 	Token string `json:"token"`
 }
 
+type magicLinkAuthenticationStatusRequestBody struct {
+	LinkID string `json:"linkID"`
+}
+
 func newAuthenticationRequestBody(method DeliveryMethod, value string) authenticationRequestBody {
 	switch method {
 	case MethodSMS:
@@ -164,6 +168,10 @@ func newMagicLinkAuthenticationSignUpRequestBody(method DeliveryMethod, value, U
 
 func newMagicLinkAuthenticationVerifyRequestBody(code string) magicLinkAuthenticationVerifyRequestBody {
 	return magicLinkAuthenticationVerifyRequestBody{Token: code}
+}
+
+func newMagicLinkAuthenticationStatusRequestBody(linkID string) magicLinkAuthenticationStatusRequestBody {
+	return magicLinkAuthenticationStatusRequestBody{LinkID: linkID}
 }
 
 func newAuthenticationSignUpRequestBody(method DeliveryMethod, value string, user *User) authenticationSignInRequestBody {

@@ -46,6 +46,12 @@ type Authentication interface {
 	// VerifyMagicLinkWithOptions - used to verify a SignInMagicLink/SignUpMagicLink request, based on the magic link token generated.
 	VerifyMagicLinkWithOptions(code string, options ...Option) (*AuthenticationInfo, error)
 
+	// StatusMagicLink ...
+	StatusMagicLink(linkID string, w http.ResponseWriter) (*AuthenticationInfo, error)
+
+	// StatusMagicLinkWithOptions ....
+	StatusMagicLinkWithOptions(linkID string, options ...Option) (*AuthenticationInfo, error)
+
 	// ValidateSession - Use to validate a session of a given request.
 	// Should be called before any private API call that requires authorization.
 	// In case the request cookie can be renewed an automatic renewal is called and returns a new set of cookies to use.

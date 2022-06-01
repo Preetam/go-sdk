@@ -44,6 +44,7 @@ func main() {
 	r.GET("/signup", handleSignUp)
 	r.GET("/signin", handleSignIn)
 	r.GET("/verify", handleVerify)
+	r.GET("/magiclink/verify", handleMagicLinkVerify)
 
 	authorized := r.Group("/")
 	authorized.Use(descopegin.AuthneticationMiddleware(client.Auth, nil))
@@ -93,6 +94,21 @@ func handleVerify(c *gin.Context) {
 		return
 	}
 	_, err := client.Auth.VerifyCodeWithOptions(method, identifier, code, descopegin.WithResponseOption(c))
+	if err != nil {
+		setError(c, err.Error())
+		return
+	}
+	setOK(c)
+}
+
+func handleMagicLinkVerify(c *gin.Context) {
+	token := c.Query("t")
+	if token == "" {
+		setError(c, "token is empty")
+		return
+	}
+	_, err := client.Auth.VerifyMagicLinkWithOptions(token, descopegin.WithResponseOption(c))
+
 	if err != nil {
 		setError(c, err.Error())
 		return

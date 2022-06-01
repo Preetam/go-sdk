@@ -126,6 +126,29 @@ func (auth *authenticationService) VerifyMagicLinkWithOptions(code string, optio
 	return NewAuthenticationInfo(token), err
 }
 
+func (auth *authenticationService) StatusMagicLink(linkID string, w http.ResponseWriter) (*AuthenticationInfo, error) {
+	return auth.StatusMagicLinkWithOptions(linkID, WithResponseOption(w))
+}
+
+func (auth *authenticationService) StatusMagicLinkWithOptions(linkID string, options ...Option) (*AuthenticationInfo, error) {
+	httpResponse, err := auth.client.DoPostRequest(composeStatusMagicLinkURL(), newMagicLinkAuthenticationStatusRequestBody(linkID), nil)
+	if err != nil {
+		return nil, err
+	}
+	cookies := []*http.Cookie{}
+	if httpResponse != nil {
+		cookies = httpResponse.Res.Cookies()
+		Options(options).SetCookies(cookies)
+	}
+	sessionToken := getSessionToken(cookies)
+	token, err := auth.validateJWT(sessionToken)
+	if err != nil {
+		logger.LogError("unable to validate refreshed token", err)
+		return nil, err
+	}
+	return NewAuthenticationInfo(token), err
+}
+
 func (auth *authenticationService) Logout(request *http.Request, w http.ResponseWriter) error {
 	return auth.LogoutWithOptions(request, WithResponseOption(w))
 }
@@ -331,4 +354,8 @@ func composeMagicLinkSignUpURL(method DeliveryMethod) string {
 
 func composeVerifyMagicLinkURL() string {
 	return api.Routes.VerifyMagicLink()
+}
+
+func composeStatusMagicLinkURL() string {
+	return api.Routes.StatusMagicLink()
 }

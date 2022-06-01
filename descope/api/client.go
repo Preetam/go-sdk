@@ -30,6 +30,7 @@ var (
 			signInMagicLink string
 			signUpMagicLink string
 			verifyMagicLink string
+			statusMagicLink string
 		}{
 			signInOTP:       "auth/signin/otp",
 			signUpOTP:       "auth/signup/otp",
@@ -37,6 +38,7 @@ var (
 			signInMagicLink: "auth/signin/magiclink",
 			signUpMagicLink: "auth/signup/magiclink",
 			verifyMagicLink: "auth/magiclink/verify",
+			statusMagicLink: "auth/magiclink/status",
 		},
 		logoutAll: "/logoutall",
 		keys:      "/keys/",
@@ -53,6 +55,7 @@ type endpoints struct {
 		signInMagicLink string
 		signUpMagicLink string
 		verifyMagicLink string
+		statusMagicLink string
 	}
 	logoutAll string
 	keys      string
@@ -76,6 +79,9 @@ func (e *endpoints) SignUpMagicLink() string {
 }
 func (e *endpoints) VerifyMagicLink() string {
 	return path.Join(e.version, e.auth.verifyMagicLink)
+}
+func (e *endpoints) StatusMagicLink() string {
+	return path.Join(e.version, e.auth.statusMagicLink)
 }
 func (e *endpoints) Logout() string {
 	return path.Join(e.version, e.logoutAll)
