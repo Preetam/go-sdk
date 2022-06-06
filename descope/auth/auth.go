@@ -126,12 +126,12 @@ func (auth *authenticationService) VerifyMagicLinkWithOptions(code string, optio
 	return NewAuthenticationInfo(token), err
 }
 
-func (auth *authenticationService) StatusMagicLink(linkID string, w http.ResponseWriter) (*AuthenticationInfo, error) {
-	return auth.StatusMagicLinkWithOptions(linkID, WithResponseOption(w))
+func (auth *authenticationService) StatusMagicLink(statusRef string, w http.ResponseWriter) (*AuthenticationInfo, error) {
+	return auth.StatusMagicLinkWithOptions(statusRef, WithResponseOption(w))
 }
 
-func (auth *authenticationService) StatusMagicLinkWithOptions(linkID string, options ...Option) (*AuthenticationInfo, error) {
-	httpResponse, err := auth.client.DoPostRequest(composeStatusMagicLinkURL(), newMagicLinkAuthenticationStatusRequestBody(linkID), nil)
+func (auth *authenticationService) StatusMagicLinkWithOptions(statusRef string, options ...Option) (*AuthenticationInfo, error) {
+	httpResponse, err := auth.client.DoPostRequest(composeStatusMagicLinkURL(), newMagicLinkAuthenticationStatusRequestBody(statusRef), nil)
 	if err != nil {
 		return nil, err
 	}

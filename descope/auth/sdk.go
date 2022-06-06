@@ -46,10 +46,10 @@ type Authentication interface {
 	VerifyMagicLinkWithOptions(code string, options ...Option) (*AuthenticationInfo, error)
 
 	// StatusMagicLink ...
-	StatusMagicLink(linkID string, w http.ResponseWriter) (*AuthenticationInfo, error)
+	StatusMagicLink(statusRef string, w http.ResponseWriter) (*AuthenticationInfo, error)
 
 	// StatusMagicLinkWithOptions ....
-	StatusMagicLinkWithOptions(linkID string, options ...Option) (*AuthenticationInfo, error)
+	StatusMagicLinkWithOptions(statusRef string, options ...Option) (*AuthenticationInfo, error)
 
 	// ValidateSession - Use to validate a session of a given request.
 	// Should be called before any private API call that requires authorization.

@@ -136,7 +136,7 @@ type magicLinkAuthenticationVerifyRequestBody struct {
 }
 
 type magicLinkAuthenticationStatusRequestBody struct {
-	LinkID string `json:"linkID"`
+	StatusRef string `json:"statusRef"`
 }
 
 func newAuthenticationRequestBody(method DeliveryMethod, value string) authenticationRequestBody {
@@ -170,8 +170,8 @@ func newMagicLinkAuthenticationVerifyRequestBody(code string) magicLinkAuthentic
 	return magicLinkAuthenticationVerifyRequestBody{Token: code}
 }
 
-func newMagicLinkAuthenticationStatusRequestBody(linkID string) magicLinkAuthenticationStatusRequestBody {
-	return magicLinkAuthenticationStatusRequestBody{LinkID: linkID}
+func newMagicLinkAuthenticationStatusRequestBody(statusRef string) magicLinkAuthenticationStatusRequestBody {
+	return magicLinkAuthenticationStatusRequestBody{StatusRef: statusRef}
 }
 
 func newAuthenticationSignUpRequestBody(method DeliveryMethod, value string, user *User) authenticationSignInRequestBody {
