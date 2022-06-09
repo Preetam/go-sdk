@@ -25,23 +25,23 @@ var (
 	Routes = endpoints{
 		version: "/v1/",
 		auth: struct {
-			signInOTP       string
-			signUpOTP       string
-			verifyCode      string
-			signInMagicLink string
-			signUpMagicLink string
-			verifyMagicLink string
-			statusMagicLink string
-			oauthStart      string
+			signInOTP         string
+			signUpOTP         string
+			verifyCode        string
+			signInMagicLink   string
+			signUpMagicLink   string
+			verifyMagicLink   string
+			getPendingSession string
+			oauthStart        string
 		}{
-			signInOTP:       "auth/signin/otp",
-			signUpOTP:       "auth/signup/otp",
-			verifyCode:      "auth/code/verify",
-			signInMagicLink: "auth/signin/magiclink",
-			signUpMagicLink: "auth/signup/magiclink",
-			verifyMagicLink: "auth/magiclink/verify",
-			statusMagicLink: "auth/magiclink/status",
-			oauthStart:      "oauth/authorize",
+			signInOTP:         "auth/signin/otp",
+			signUpOTP:         "auth/signup/otp",
+			verifyCode:        "auth/code/verify",
+			signInMagicLink:   "auth/signin/magiclink",
+			signUpMagicLink:   "auth/signup/magiclink",
+			verifyMagicLink:   "auth/magiclink/verify",
+			getPendingSession: "auth/session/pending",
+			oauthStart:        "oauth/authorize",
 		},
 		logoutAll: "auth/logoutall",
 		keys:      "/keys/",
@@ -52,14 +52,14 @@ var (
 type endpoints struct {
 	version string
 	auth    struct {
-		signInOTP       string
-		signUpOTP       string
-		verifyCode      string
-		signInMagicLink string
-		signUpMagicLink string
-		verifyMagicLink string
-		statusMagicLink string
-		oauthStart      string
+		signInOTP         string
+		signUpOTP         string
+		verifyCode        string
+		signInMagicLink   string
+		signUpMagicLink   string
+		verifyMagicLink   string
+		getPendingSession string
+		oauthStart        string
 	}
 	logoutAll string
 	keys      string
@@ -84,8 +84,8 @@ func (e *endpoints) SignUpMagicLink() string {
 func (e *endpoints) VerifyMagicLink() string {
 	return path.Join(e.version, e.auth.verifyMagicLink)
 }
-func (e *endpoints) StatusMagicLink() string {
-	return path.Join(e.version, e.auth.statusMagicLink)
+func (e *endpoints) GetPendingSession() string {
+	return path.Join(e.version, e.auth.getPendingSession)
 }
 func (e *endpoints) OAuthStart() string {
 	return path.Join(e.version, e.auth.oauthStart)

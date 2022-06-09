@@ -17,9 +17,12 @@ type MockDescopeAuthentication struct {
 	AssertOAuthStart             func(provider OAuthProvider)
 	AssertOAuthResponseURL       string
 	OAuthStartResponseError      error
-	AssertSignInMagicLink        func(method DeliveryMethod, identifier, URI string)
-	AssertSignUpMagicLink        func(method DeliveryMethod, identifier, URI string, user *User)
+	AssertSignInMagicLink        func(method DeliveryMethod, identifier, URI string, crossDevice bool)
+	AssertSignUpMagicLink        func(method DeliveryMethod, identifier, URI string, user *User, crossDevice bool)
 	AssertVerifyMagicLink        func(code string)
+	AssertGetPendingSession      func(pendingRef string)
+	PendingSessionResponseInfo   *AuthenticationInfo
+	PendingSessionResponseError  error
 }
 
 func (m MockDescopeAuthentication) SignInOTP(method DeliveryMethod, identifier string) error {
@@ -50,18 +53,32 @@ func (m MockDescopeAuthentication) VerifyCodeWithOptions(method DeliveryMethod, 
 	return m.VerifyCodeResponseInfo, m.VerifyCodeResponseError
 }
 
-func (m MockDescopeAuthentication) SignInMagicLink(method DeliveryMethod, identifier, URI string) error {
+func (m MockDescopeAuthentication) SignInMagicLink(method DeliveryMethod, identifier, URI string, crossDevice bool) error {
 	if m.AssertSignInOTP != nil {
-		m.AssertSignInMagicLink(method, identifier, URI)
+		m.AssertSignInMagicLink(method, identifier, URI, crossDevice)
 	}
 	return m.SignInOTPResponseError
 }
 
-func (m MockDescopeAuthentication) SignUpMagicLink(method DeliveryMethod, identifier, URI string, user *User) error {
+func (m MockDescopeAuthentication) SignUpMagicLink(method DeliveryMethod, identifier, URI string, user *User, crossDevice bool) error {
 	if m.AssertSignUpOTP != nil {
-		m.AssertSignUpMagicLink(method, identifier, URI, user)
+		m.AssertSignUpMagicLink(method, identifier, URI, user, crossDevice)
 	}
 	return m.SignUpOTPResponseError
+}
+
+func (m MockDescopeAuthentication) GetPendingSession(pendingRef string, w http.ResponseWriter) (*AuthenticationInfo, error) {
+	if m.AssertOAuthStart != nil {
+		m.AssertGetPendingSession(pendingRef)
+	}
+	return m.PendingSessionResponseInfo, m.PendingSessionResponseError
+}
+
+func (m MockDescopeAuthentication) GetPendingSessionWithOptions(pendingRef string, options ...Option) (*AuthenticationInfo, error) {
+	if m.AssertOAuthStart != nil {
+		m.AssertGetPendingSession(pendingRef)
+	}
+	return m.PendingSessionResponseInfo, m.PendingSessionResponseError
 }
 
 func (m MockDescopeAuthentication) OAuthStart(provider OAuthProvider, _ http.ResponseWriter) (string, error) {

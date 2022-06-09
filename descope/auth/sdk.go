@@ -6,17 +6,17 @@ import (
 
 // Implementation in descope/auth/auth.go
 type Authentication interface {
-	// SignInOTP - used to login a user based on the given identifier either email or a phone
+	// SignInOTP - Use to login a user based on the given identifier either email or a phone
 	// and choose the selected delivery method for verification. (see auth/DeliveryMethod)
 	// returns an error upon failure.
 	SignInOTP(method DeliveryMethod, identifier string) error
-	// SignUpOTP - used to create a new user based on the given identifier either email or a phone.
+	// SignUpOTP - Use to create a new user based on the given identifier either email or a phone.
 	// choose the selected delivery method for verification. (see auth/DeliveryMethod)
 	// optional to add user metadata for farther user details such as name and more.
 	// returns an error upon failure.
 	SignUpOTP(method DeliveryMethod, identifier string, user *User) error
 
-	// VerifyCode - used to verify a SignIn/SignUp based on the given identifier either an email or a phone
+	// VerifyCode - Use to verify a SignIn/SignUp based on the given identifier either an email or a phone
 	// followed by the code used to verify and authenticate the user.
 	// In case the request cookie can be renewed an automatic renewal is called and returns a new set of cookies to use.
 	// Use the ResponseWriter (optional) to apply the cookies to the response automatically.
@@ -24,32 +24,38 @@ type Authentication interface {
 	// This is a shortcut for VerifyCodeWithOptions(method, identifier, code, WithResponseOption(w))
 	VerifyCode(method DeliveryMethod, identifier string, code string, w http.ResponseWriter) (*AuthenticationInfo, error)
 
-	// VerifyCodeWithOptions - used to verify a SignIn/SignUp based on the given identifier either an email or a phone
+	// VerifyCodeWithOptions - Use to verify a SignIn/SignUp based on the given identifier either an email or a phone
 	// followed by the code used to verify and authenticate the user.
 	// returns a list of cookies or an error upon failure.
 	VerifyCodeWithOptions(method DeliveryMethod, identifier string, code string, options ...Option) (*AuthenticationInfo, error)
 
-	// SignInMagicLink - used to login a user based on a magic link that will be sent either email or a phone
+	// SignInMagicLink - Use to login a user based on a magic link that will be sent either email or a phone
 	// and choose the selected delivery method for verification. (see auth/DeliveryMethod)
-	// returns an error upon failure.
-	SignInMagicLink(method DeliveryMethod, identifier, URI string) error
-	// SignUpMagicLink - used to create a new user based on the given identifier either email or a phone.
+	// optional to add crossDevice - if true, request will return pending reference, that should be passed to GetPendingSession requests in order to get the authenticated session.
+	// returns a pending reference if crossDevice is true, and an error upon failure.
+	SignInMagicLink(method DeliveryMethod, identifier, URI string, crossDevice bool) error
+	// SignUpMagicLink - Use to create a new user based on the given identifier either email or a phone.
 	// choose the selected delivery method for verification. (see auth/DeliveryMethod)
 	// optional to add user metadata for farther user details such as name and more.
-	// returns an error upon failure.
-	SignUpMagicLink(method DeliveryMethod, identifier, URI string, user *User) error
+	// optional to add crossDevice - if true, request will return pending reference, that should be passed to GetPendingSession requests in order to get the authenticated session.
+	// returns a pending reference if crossDevice is true, and an error upon failure.
+	SignUpMagicLink(method DeliveryMethod, identifier, URI string, user *User, crossDevice bool) error
 
-	// VerifyMagicLink - used to verify a SignInMagicLink/SignUpMagicLink request, based on the magic link token generated.
+	// VerifyMagicLink - Use to verify a SignInMagicLink/SignUpMagicLink request, based on the magic link token generated.
+	// returns a list of cookies only if the magic link was created with crossDevice=false or an error upon failure.
 	// This is a shortcut for VerifyMagicLinkWithOptions(method, code, WithResponseOption(w))
 	VerifyMagicLink(code string, w http.ResponseWriter) (*AuthenticationInfo, error)
-	// VerifyMagicLinkWithOptions - used to verify a SignInMagicLink/SignUpMagicLink request, based on the magic link token generated.
+	// VerifyMagicLinkWithOptions - Use to verify a SignInMagicLink/SignUpMagicLink request, based on the magic link token generated.
 	VerifyMagicLinkWithOptions(code string, options ...Option) (*AuthenticationInfo, error)
 
-	// StatusMagicLink ...
-	StatusMagicLink(statusRef string, w http.ResponseWriter) (*AuthenticationInfo, error)
+	// GetPendingSession - Use to get the pending session with the pending reference returned from a SignInMagicLink/SignUpMagicLink request with crossDevice=true.
+	// returns a list of cookies or an error upon failure.
+	// This is a shortcut for GetPendingSessionWithOptions(pendingRef, WithResponseOption(w))
+	GetPendingSession(pendingRef string, w http.ResponseWriter) (*AuthenticationInfo, error)
+	// GetPendingSessionWithOptions - Use to get the pending session with the pending reference returned from a SignInMagicLink/SignUpMagicLink request with crossDevice=true.
+	// returns a list of cookies or an error upon failure.
+	GetPendingSessionWithOptions(pendingRef string, options ...Option) (*AuthenticationInfo, error)
 
-	// StatusMagicLinkWithOptions ....
-	StatusMagicLinkWithOptions(statusRef string, options ...Option) (*AuthenticationInfo, error)
 	// OAuthStart - use to start an OAuth authentication using the given OAuthProvider.
 	// returns an error upon failure and a string represent the redirect URL upon success.
 	// Uses the response writer to automatically redirect the client to the provider url for authentication.

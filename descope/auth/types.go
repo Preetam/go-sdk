@@ -142,10 +142,11 @@ type authenticationVerifyRequestBody struct {
 }
 
 type magicLinkAuthenticationRequestBody struct {
-	WhatsApp string `json:"whatsapp,omitempty"`
-	Phone    string `json:"phone,omitempty"`
-	Email    string `json:"email,omitempty"`
-	URI      string `json:"URI,omitempty"`
+	WhatsApp    string `json:"whatsapp,omitempty"`
+	Phone       string `json:"phone,omitempty"`
+	Email       string `json:"email,omitempty"`
+	URI         string `json:"URI,omitempty"`
+	CrossDevice bool   `json:"crossDevice,omitempty"`
 }
 
 type magicLinkAuthenticationSignInRequestBody struct {
@@ -157,8 +158,8 @@ type magicLinkAuthenticationVerifyRequestBody struct {
 	Token string `json:"token"`
 }
 
-type magicLinkAuthenticationStatusRequestBody struct {
-	StatusRef string `json:"statusRef"`
+type magicLinkAuthenticationPendingSessionRequestBody struct {
+	PendingRef string `json:"pendingRef"`
 }
 
 func newAuthenticationRequestBody(method DeliveryMethod, value string) authenticationRequestBody {
@@ -172,7 +173,7 @@ func newAuthenticationRequestBody(method DeliveryMethod, value string) authentic
 	return authenticationRequestBody{Email: value}
 }
 
-func newMagicLinkAuthenticationRequestBody(method DeliveryMethod, value, URI string) magicLinkAuthenticationRequestBody {
+func newMagicLinkAuthenticationRequestBody(method DeliveryMethod, value, URI string, crossDevice bool) magicLinkAuthenticationRequestBody {
 	switch method {
 	case MethodSMS:
 		return magicLinkAuthenticationRequestBody{Phone: value, URI: URI}
@@ -180,11 +181,11 @@ func newMagicLinkAuthenticationRequestBody(method DeliveryMethod, value, URI str
 		return magicLinkAuthenticationRequestBody{WhatsApp: value, URI: URI}
 	}
 
-	return magicLinkAuthenticationRequestBody{Email: value, URI: URI}
+	return magicLinkAuthenticationRequestBody{Email: value, URI: URI, CrossDevice: crossDevice}
 }
 
-func newMagicLinkAuthenticationSignUpRequestBody(method DeliveryMethod, value, URI string, user *User) magicLinkAuthenticationSignInRequestBody {
-	b := newMagicLinkAuthenticationRequestBody(method, value, URI)
+func newMagicLinkAuthenticationSignUpRequestBody(method DeliveryMethod, value, URI string, user *User, crossDevice bool) magicLinkAuthenticationSignInRequestBody {
+	b := newMagicLinkAuthenticationRequestBody(method, value, URI, crossDevice)
 	return magicLinkAuthenticationSignInRequestBody{magicLinkAuthenticationRequestBody: b, User: user}
 }
 
@@ -192,8 +193,8 @@ func newMagicLinkAuthenticationVerifyRequestBody(code string) magicLinkAuthentic
 	return magicLinkAuthenticationVerifyRequestBody{Token: code}
 }
 
-func newMagicLinkAuthenticationStatusRequestBody(statusRef string) magicLinkAuthenticationStatusRequestBody {
-	return magicLinkAuthenticationStatusRequestBody{StatusRef: statusRef}
+func newMagicLinkAuthenticationPendingSessionRequestBody(pendingRef string) magicLinkAuthenticationPendingSessionRequestBody {
+	return magicLinkAuthenticationPendingSessionRequestBody{PendingRef: pendingRef}
 }
 
 func newAuthenticationSignUpRequestBody(method DeliveryMethod, value string, user *User) authenticationSignInRequestBody {

@@ -85,21 +85,21 @@ func (auth *authenticationService) VerifyCodeWithOptions(method DeliveryMethod, 
 	return NewAuthenticationInfo(token), err
 }
 
-func (auth *authenticationService) SignInMagicLink(method DeliveryMethod, identifier, URI string) error {
+func (auth *authenticationService) SignInMagicLink(method DeliveryMethod, identifier, URI string, crossDevice bool) error {
 	if err := auth.verifyDeliveryMethod(method, identifier); err != nil {
 		return err
 	}
 
-	_, err := auth.client.DoPostRequest(composeMagicLinkSignInURL(method), newMagicLinkAuthenticationRequestBody(method, identifier, URI), nil)
+	_, err := auth.client.DoPostRequest(composeMagicLinkSignInURL(method), newMagicLinkAuthenticationRequestBody(method, identifier, URI, crossDevice), nil)
 	return err
 }
 
-func (auth *authenticationService) SignUpMagicLink(method DeliveryMethod, identifier, URI string, user *User) error {
+func (auth *authenticationService) SignUpMagicLink(method DeliveryMethod, identifier, URI string, user *User, crossDevice bool) error {
 	if err := auth.verifyDeliveryMethod(method, identifier); err != nil {
 		return err
 	}
 
-	_, err := auth.client.DoPostRequest(composeMagicLinkSignUpURL(method), newMagicLinkAuthenticationSignUpRequestBody(method, identifier, URI, user), nil)
+	_, err := auth.client.DoPostRequest(composeMagicLinkSignUpURL(method), newMagicLinkAuthenticationSignUpRequestBody(method, identifier, URI, user, crossDevice), nil)
 	return err
 }
 
@@ -118,20 +118,24 @@ func (auth *authenticationService) VerifyMagicLinkWithOptions(code string, optio
 		Options(options).SetCookies(cookies)
 	}
 	sessionToken := getSessionToken(cookies)
-	token, err := auth.validateJWT(sessionToken)
-	if err != nil {
-		logger.LogError("unable to validate refreshed token", err)
-		return nil, err
+	if sessionToken != "" {
+		token, err := auth.validateJWT(sessionToken)
+		if err != nil {
+			logger.LogError("unable to validate refreshed token", err)
+			return nil, err
+		}
+		return NewAuthenticationInfo(token), err
 	}
-	return NewAuthenticationInfo(token), err
+	// in case the sign-in/sign-up was done as cross-device mode, no authentication info is returned
+	return nil, nil
 }
 
-func (auth *authenticationService) StatusMagicLink(statusRef string, w http.ResponseWriter) (*AuthenticationInfo, error) {
-	return auth.StatusMagicLinkWithOptions(statusRef, WithResponseOption(w))
+func (auth *authenticationService) GetPendingSession(pendingRef string, w http.ResponseWriter) (*AuthenticationInfo, error) {
+	return auth.GetPendingSessionWithOptions(pendingRef, WithResponseOption(w))
 }
 
-func (auth *authenticationService) StatusMagicLinkWithOptions(statusRef string, options ...Option) (*AuthenticationInfo, error) {
-	httpResponse, err := auth.client.DoPostRequest(composeStatusMagicLinkURL(), newMagicLinkAuthenticationStatusRequestBody(statusRef), nil)
+func (auth *authenticationService) GetPendingSessionWithOptions(pendingRef string, options ...Option) (*AuthenticationInfo, error) {
+	httpResponse, err := auth.client.DoPostRequest(composeGetPendingSessionURL(), newMagicLinkAuthenticationPendingSessionRequestBody(pendingRef), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -379,8 +383,8 @@ func composeVerifyMagicLinkURL() string {
 	return api.Routes.VerifyMagicLink()
 }
 
-func composeStatusMagicLinkURL() string {
-	return api.Routes.StatusMagicLink()
+func composeGetPendingSessionURL() string {
+	return api.Routes.GetPendingSession()
 }
 
 func composeOAuthURL() string {
