@@ -50,6 +50,14 @@ type Authentication interface {
 
 	// StatusMagicLinkWithOptions ....
 	StatusMagicLinkWithOptions(statusRef string, options ...Option) (*AuthenticationInfo, error)
+	// OAuthStart - use to start an OAuth authentication using the given OAuthProvider.
+	// returns an error upon failure and a string represent the redirect URL upon success.
+	// Uses the response writer to automatically redirect the client to the provider url for authentication.
+	// A successful authentication will result in a callback to the url defined in the current project settings.
+	// This is a shortcut for OAuthStartWithOptions(provider, WithResponseOption(w))
+	OAuthStart(provider OAuthProvider, w http.ResponseWriter) (string, error)
+	// OAuthStartWithOptions - use to start an OAuth authentication using the given OAuthProvider and options.
+	OAuthStartWithOptions(provider OAuthProvider, options ...Option) (string, error)
 
 	// ValidateSession - Use to validate a session of a given request.
 	// Should be called before any private API call that requires authorization.

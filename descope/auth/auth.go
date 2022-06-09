@@ -149,6 +149,29 @@ func (auth *authenticationService) StatusMagicLinkWithOptions(statusRef string, 
 	return NewAuthenticationInfo(token), err
 }
 
+func (auth *authenticationService) OAuthStart(provider OAuthProvider, w http.ResponseWriter) (string, error) {
+	return auth.OAuthStartWithOptions(provider, WithResponseOption(w))
+}
+
+func (auth *authenticationService) OAuthStartWithOptions(provider OAuthProvider, options ...Option) (url string, err error) {
+	httpResponse, err := auth.client.DoGetRequest(composeOAuthURL(), &api.HTTPRequest{QueryParams: map[string]string{"provider": string(provider)}})
+	if err != nil {
+		return
+	}
+
+	if httpResponse.Res != nil {
+		urlObj, err := httpResponse.Res.Location()
+		if err != nil {
+			logger.LogError("failed to parse location from response for [%s]", err, provider)
+			return "", err
+		}
+		url = urlObj.String()
+		Options(options).CopyResponse(httpResponse.Res, httpResponse.BodyStr)
+	}
+
+	return
+}
+
 func (auth *authenticationService) Logout(request *http.Request, w http.ResponseWriter) error {
 	return auth.LogoutWithOptions(request, WithResponseOption(w))
 }
@@ -358,4 +381,8 @@ func composeVerifyMagicLinkURL() string {
 
 func composeStatusMagicLinkURL() string {
 	return api.Routes.StatusMagicLink()
+}
+
+func composeOAuthURL() string {
+	return api.Routes.OAuthStart()
 }
