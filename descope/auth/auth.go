@@ -84,6 +84,7 @@ func (auth *authenticationService) LogoutWithOptions(request *http.Request, opti
 		return errors.MissingProviderError
 	}
 
+	logger.LogInfo("### LogoutWithOptions starts ...")
 	_, refreshToken := provideTokens(request)
 	if refreshToken == "" {
 		logger.LogDebug("unable to find tokens from cookies")
@@ -105,13 +106,18 @@ func (auth *authenticationService) LogoutWithOptions(request *http.Request, opti
 	path := "/"
 	domain := ""
 	if token.Claims != nil {
+		logger.LogInfo("### has claims...")
 		if pathFromClaims, ok := token.Claims[claimAttributePath].(string); ok {
+			logger.LogInfo("### got path %s", pathFromClaims)
 			path = pathFromClaims
 		}
 		if domainFromClaims, ok := token.Claims[claimAttributeDomain].(string); ok {
+			logger.LogInfo("### got domain %s", domainFromClaims)
+
 			domain = domainFromClaims
 		}
 	}
+	logger.LogInfo("### logout with path %s, domain %s", path, domain)
 	// delete cookies by not specifying max-age (e.i. max-age=0)
 	cookies = append(cookies, createCookie(&Token{JWT: "", Claims: map[string]interface{}{
 		claimAttributeName:   SessionCookieName,
